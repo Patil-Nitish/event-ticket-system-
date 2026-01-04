@@ -194,6 +194,9 @@ The system uses a **single-table design** with the following access patterns:
 
 ## 📡 API Documentation
 
+### API Flow Diagram
+<img width="3308" height="1055" alt="API Flow" src="https://github.com/user-attachments/assets/abede07f-916a-4a74-8656-b4264a0420bf" />
+
 ### Base URL
 ```
 https://tnzlib1yia.execute-api.us-east-1.amazonaws.com/prod
