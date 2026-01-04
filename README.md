@@ -87,14 +87,7 @@ The Event Ticket System is a fully serverless application designed to streamline
 
 ### High-Level Architecture
 
-The system uses a serverless architecture with the following components:
-- CloudFront distribution serving the frontend
-- API Gateway routing requests to Lambda functions
-- Cognito User Pool for authentication
-- Lambda functions processing business logic
-- DynamoDB table storing all data
-- S3 bucket storing ticket PDFs
-- Stripe integration for payments
+<img width="2281" height="1553" alt="architecture Event" src="https://github.com/user-attachments/assets/6d8b5f80-d415-4717-96b6-58b792572bb5" />
 
 ### Component Flow
 
@@ -194,6 +187,10 @@ The system uses a **single-table design** with the following access patterns:
 3. **Get Organizer's Events**: `Query(GSI1, GSI1PK = "ORG#<userId>", GSI1SK begins_with "EVENT#")`
 4. **Get All Events**: `Scan(FilterExpression: type = "EVENT" AND SK = "METADATA")`
 5. **Get Ticket by ID**: `Query(PK = "TICKET#<ticketId>", SK = "METADATA")`
+
+### Schema Diagram
+<img width="6550" height="3408" alt="EventAPP" src="https://github.com/user-attachments/assets/65c9d63d-c0e5-4956-98e6-6909c122b444" />
+
 
 ## 📡 API Documentation
 
