@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ticket Scanner | Event Registration</title>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --primary: #4f46e5;
+      --primary-light: #6366f1;
+      --primary-dark: #4338ca;
+      --text: #1f2937;
+      --text-light: #6b7280;
+      --border: #e5e7eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --radius: 16px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      padding: 24px 32px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-size: 24px;
+      margin: 0;
+      color: white;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1::before {
+      content: "📷";
+      font-size: 28px;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateX(-2px);
+    }
+
+    main {
+      max-width: 800px;
+      margin: 48px auto;
+      padding: 0 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      border-color: rgba(79, 70, 229, 0.1);
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 24px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h2::before {
+      font-size: 24px;
+    }
+
+    .scan-section h2::before {
+      content: "📱";
+    }
+
+    .manual-section h2::before {
+      content: "⌨️";
+    }
+
+    .result-section h2::before {
+      content: "📊";
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      letter-spacing: 0.3px;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--card);
+      color: var(--text);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #f9fafb;
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    input {
+      width: 100%;
+      padding: 16px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      font-size: 15px;
+      transition: var(--transition);
+      background: white;
+      margin-bottom: 20px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    #reader {
+      width: 100%;
+      max-width: 400px;
+      margin: 20px auto;
+      display: none;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-card {
+      text-align: center;
+      padding: 40px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-light) 0%, var(--primary-dark) 100%);
+    }
+
+    .status-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .status-text {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 16px 0;
+      transition: var(--transition);
+    }
+
+    .status-desc {
+      color: var(--text-light);
+      font-size: 15px;
+      max-width: 400px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .valid { color: var(--success); }
+    .used { color: var(--warning); }
+    .invalid { color: var(--error); }
+
+    .valid-bg {
+      background: rgba(16, 185, 129, 0.05);
+      border: 2px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .used-bg {
+      background: rgba(245, 158, 11, 0.05);
+      border: 2px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .invalid-bg {
+      background: rgba(239, 68, 68, 0.05);
+      border: 2px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .empty-bg {
+      background: white;
+      border: 2px dashed var(--border);
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(79, 70, 229, 0.2);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .scan-controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .scan-controls .btn {
+      width: auto;
+      flex: 1;
+    }
+
+    .ticket-id-display {
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 12px;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 14px;
+      word-break: break-all;
+      margin: 20px 0;
+      border: 1px solid var(--border);
+    }
+
+    .scan-animation {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    .scan-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent 0%, var(--primary) 50%, transparent 100%);
+      animation: scan 2s ease-in-out infinite;
+      z-index: 1;
+    }
+
+    @keyframes scan {
+      0%, 100% { top: 0; }
+      50% { top: 100%; }
+    }
+
+    @media (max-width: 768px) {
+      main {
+        margin: 24px auto;
+        padding: 0 16px;
+      }
+      
+      header {
+        padding: 20px 16px;
+      }
+      
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .card {
+        padding: 24px;
+      }
+      
+      .scan-controls {
+        flex-direction: column;
+      }
+      
+      .scan-controls .btn {
+        width: 100%;
+      }
+      
+      h2 {
+        font-size: 18px;
+      }
+    }
+
+    .demo-note {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(67, 56, 202, 0.05) 100%);
+      border: 1px solid rgba(79, 70, 229, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 20px;
+      font-size: 14px;
+      color: var(--text-light);
+    }
+
+    .demo-note::before {
+      content: "💡";
+      margin-right: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <button class="back-btn" onclick="window.location.href='index.html'">
+    ←
+  </button>
+  <h1>Ticket Scanner</h1>
+</header>
+
+<main>
+  <div class="grid">
+    <!-- CAMERA SCAN -->
+    <div class="card scan-section">
+      <h2>Camera Scan</h2>
+      <div class="scan-animation">
+        <div id="reader"></div>
+        <div class="scan-line" style="display: none;"></div>
+      </div>
+      <div class="scan-controls">
+        <button onclick="startCamera()" class="btn btn-primary">
+          <span>📷</span>
+          <span>Start Camera</span>
+        </button>
+        <button onclick="stopCamera()" class="btn btn-secondary">
+          <span>⏹️</span>
+          <span>Stop Camera</span>
+        </button>
+      </div>
+      <div class="demo-note">
+        For demo: Point camera at a QR code or show a valid ticket ID
+      </div>
+    </div>
+
+    <!-- MANUAL SCAN -->
+    <div class="card manual-section">
+      <h2>Manual Scan</h2>
+      <div class="form-group">
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text);">
+          Ticket ID
+        </label>
+        <input id="ticketInput" placeholder="Paste or type Ticket ID here" />
+        <button onclick="manualScan()" class="btn btn-primary">
+          <span>🔍</span>
+          <span>Scan Ticket</span>
+        </button>
+      </div>
+      <div class="ticket-id-display" id="lastScanned" style="display: none;">
+        Last scanned: <span id="scannedId"></span>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="card result-section status-card empty-bg">
+      <h2>Scan Result</h2>
+      <div id="statusIcon" class="status-icon">📋</div>
+      <div id="result" class="status-text">Waiting for scan...</div>
+      <div id="resultDesc" class="status-desc">
+        Scan a ticket QR code or enter a Ticket ID manually
+      </div>
+      <div id="scanTime" style="margin-top: 20px; font-size: 14px; color: var(--text-light);">
+        — Last scan: Never —
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const API_BASE = "https://tnzlib1yia.execute-api.us-east-1.amazonaws.com/prod";
+let token = localStorage.getItem("id_token");
+let qr = null;
+let lastScanTime = null;
+
+// Update token on page load
+if (!token) {
+  const hash = window.location.hash.substring(1);
+  const params = new URLSearchParams(hash);
+  token = params.get("id_token");
+  if (token) {
+    localStorage.setItem("id_token", token);
+  }
+}
+
+/* ---------------- CAMERA SCAN ---------------- */
+
+function startCamera() {
+  const reader = document.getElementById("reader");
+  const scanLine = document.querySelector('.scan-line');
+  
+  if (qr) {
+    qr.stop().catch(() => {});
+    qr = null;
+  }
+
+  reader.style.display = "block";
+  scanLine.style.display = "block";
+  
+  updateResult("Waiting for QR code...", "", "📷", "empty-bg");
+
+  Html5Qrcode.getCameras().then(devices => {
+    if (devices && devices.length) {
+      const cameraId = devices.length > 1 ? devices[1].id : devices[0].id;
+      
+      qr = new Html5Qrcode("reader");
+      
+      qr.start(
+        cameraId,
+        {
+          fps: 10,
+          qrbox: 300,
+          aspectRatio: 1,
+          disableFlip: false
+        },
+        (decodedText) => {
+          console.log("QR decoded:", decodedText);
+          handleDecodedText(decodedText);
+        },
+        (errorMessage) => {
+          // Silently ignore decode failures
+        }
+      ).catch(err => {
+        console.error("Camera error:", err);
+        updateResult("Camera Error", "Unable to access camera", "❌", "invalid-bg");
+        stopCamera();
+      });
+      
+    } else {
+      updateResult("No Camera", "No camera device found", "📵", "invalid-bg");
+    }
+  }).catch(err => {
+    console.error("Camera access error:", err);
+    updateResult("Access Denied", "Camera access denied", "🔒", "invalid-bg");
+  });
+}
+
+function stopCamera() {
+  const reader = document.getElementById("reader");
+  const scanLine = document.querySelector('.scan-line');
+  
+  if (qr) {
+    qr.stop().then(() => {
+      qr = null;
+      reader.style.display = "none";
+      scanLine.style.display = "none";
+    }).catch(err => {
+      console.error("Stop error:", err);
+      qr = null;
+      reader.style.display = "none";
+      scanLine.style.display = "none";
+    });
+  } else {
+    reader.style.display = "none";
+    scanLine.style.display = "none";
+  }
+}
+
+/* ---------------- MANUAL SCAN ---------------- */
+
+function manualScan() {
+  const ticketId = document.getElementById("ticketInput").value.trim();
+  if (!ticketId) {
+    updateResult("No Input", "Please enter a Ticket ID", "❌", "invalid-bg");
+    return;
+  }
+  
+  document.getElementById("scannedId").textContent = ticketId;
+  document.getElementById("lastScanned").style.display = "block";
+  document.getElementById("ticketInput").value = "";
+  
+  scanTicket(ticketId);
+}
+
+/* ---------------- HANDLE DECODED TEXT ---------------- */
+
+function handleDecodedText(decodedText) {
+  const ticketId = decodedText.trim();
+  
+  document.getElementById("scannedId").textContent = ticketId;
+  document.getElementById("lastScanned").style.display = "block";
+  
+  if (qr) {
+    qr.stop().then(() => {
+      qr = null;
+      document.getElementById("reader").style.display = "none";
+      document.querySelector('.scan-line').style.display = "none";
+      scanTicket(ticketId);
+    });
+  } else {
+    scanTicket(ticketId);
+  }
+}
+
+/* ---------------- API CALL ---------------- */
+
+async function scanTicket(ticketId) {
+  updateResult("Scanning...", "Checking ticket validity", "⏳", "empty-bg");
+  
+  try {
+    const res = await fetch(API_BASE + "/scan", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ ticketId })
+    });
+
+    const data = await res.json();
+    lastScanTime = new Date();
+
+    if (data.status === "VALID") {
+      updateResult(
+        "VALID TICKET",
+        "This ticket is valid for entry",
+        "✅",
+        "valid-bg"
+      );
+    } else if (data.status === "USED") {
+      updateResult(
+        "ALREADY USED",
+        "This ticket was already scanned",
+        "⚠️",
+        "used-bg"
+      );
+    } else {
+      updateResult(
+        "INVALID TICKET",
+        "This ticket is not valid",
+        "❌",
+        "invalid-bg"
+      );
+    }
+    
+    updateScanTime();
+
+  } catch (err) {
+    console.error("Scan failed:", err);
+    updateResult(
+      "Scan Failed",
+      "Network error. Please try again",
+      "🔌",
+      "invalid-bg"
+    );
+  }
+}
+
+/* ---------------- UI UPDATES ---------------- */
+
+function updateResult(title, description, icon, bgClass) {
+  const statusCard = document.querySelector('.status-card');
+  const resultEl = document.getElementById("result");
+  const resultDesc = document.getElementById("resultDesc");
+  const statusIcon = document.getElementById("statusIcon");
+  
+  // Update text content
+  resultEl.textContent = title;
+  resultDesc.textContent = description;
+  statusIcon.textContent = icon;
+  
+  // Update styling
+  statusCard.className = "card result-section status-card " + bgClass;
+  
+  // Remove old color classes
+  resultEl.classList.remove("valid", "used", "invalid");
+  
+  // Add appropriate color class
+  if (bgClass === "valid-bg") resultEl.classList.add("valid");
+  else if (bgClass === "used-bg") resultEl.classList.add("used");
+  else if (bgClass === "invalid-bg") resultEl.classList.add("invalid");
+}
+
+function updateScanTime() {
+  const scanTimeEl = document.getElementById("scanTime");
+  if (lastScanTime) {
+    const timeStr = lastScanTime.toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      second: '2-digit'
+    });
+    scanTimeEl.innerHTML = `⏰ Last scan: ${timeStr}`;
+  }
+}
+
+/* ---------------- INITIALIZATION ---------------- */
+
+// Auto-focus input field
+document.getElementById("ticketInput").focus();
+
+// Add Enter key support for manual scan
+document.getElementById("ticketInput").addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    manualScan();
+  }
+});
+
+// Stop camera when leaving page
+window.addEventListener('beforeunload', stopCamera);
+</script>
+
+</body>
+</html>
