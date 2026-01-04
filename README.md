@@ -199,7 +199,7 @@ The system uses a **single-table design** with the following access patterns:
 
 ### Base URL
 ```
-https://tnzlib1yia.execute-api.us-east-1.amazonaws.com/prod
+https://<api-gateway-id>.execute-api.<region>.amazonaws.com/prod
 ```
 
 ### Authentication
@@ -446,11 +446,11 @@ All endpoints may return the following error responses:
 
 ### Amazon Cognito User Pool
 
-**User Pool ID**: (Configured in AWS)
+**User Pool ID**: `<your-user-pool-id>`
 
-**Client ID**: `2ia4957lvacmn4tic5b2fkjir9`
+**Client ID**: `<your-client-id>`
 
-**Domain**: `https://us-east-1p9jovxmbg.auth.us-east-1.amazoncognito.com`
+**Domain**: `https://<your-cognito-domain>.auth.<region>.amazoncognito.com`
 
 ### User Groups
 
