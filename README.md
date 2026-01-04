@@ -12,8 +12,7 @@ A comprehensive, serverless event management platform built on AWS that enables 
 - [API Documentation](#api-documentation)
 - [Authentication & Authorization](#authentication--authorization)
 - [Deployment](#deployment)
-- [Cost Breakdown](#cost-breakdown)
-- [Scalability Plan](#scalability-plan)
+- [Cost Analysis & Scalability Plan](#cost-analysis--scalability-plan)
 - [Local Development](#local-development)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
@@ -88,10 +87,7 @@ The Event Ticket System is a fully serverless application designed to streamline
 
 ### High-Level Architecture
 
-```
-[Placeholder for Architecture Diagram]
-
-The diagram will show:
+The system uses a serverless architecture with the following components:
 - CloudFront distribution serving the frontend
 - API Gateway routing requests to Lambda functions
 - Cognito User Pool for authentication
@@ -99,7 +95,6 @@ The diagram will show:
 - DynamoDB table storing all data
 - S3 bucket storing ticket PDFs
 - Stripe integration for payments
-```
 
 ### Component Flow
 
@@ -129,20 +124,6 @@ The diagram will show:
    - Scan Lambda validates ticket in DynamoDB
    - Ticket status updated from VALID to USED
    - Result displayed in real-time
-
-### API Flow Diagram
-
-```
-[Placeholder for API Flow Diagram]
-
-The diagram will illustrate:
-- All API endpoints and their HTTP methods
-- Request/response flow for each endpoint
-- Lambda function invocations
-- Database read/write operations
-- S3 interactions
-- External service calls (Stripe)
-```
 
 ## 🗄️ Database Schema
 
@@ -213,18 +194,6 @@ The system uses a **single-table design** with the following access patterns:
 3. **Get Organizer's Events**: `Query(GSI1, GSI1PK = "ORG#<userId>", GSI1SK begins_with "EVENT#")`
 4. **Get All Events**: `Scan(FilterExpression: type = "EVENT" AND SK = "METADATA")`
 5. **Get Ticket by ID**: `Query(PK = "TICKET#<ticketId>", SK = "METADATA")`
-
-### DynamoDB Schema Diagram
-
-```
-[Placeholder for DynamoDB Schema Diagram]
-
-The diagram will show:
-- Table structure with PK and SK
-- GSI1 structure
-- All entity types and their relationships
-- Access pattern visualizations
-```
 
 ## 📡 API Documentation
 
@@ -627,231 +596,16 @@ Set environment variables for each Lambda:
 - `STRIPE_SECRET_KEY`: Stripe secret key
 - `FRONTEND_URL`: CloudFront distribution URL
 
-## 💰 Cost Breakdown
+## 📊 Cost Analysis & Scalability Plan
 
-### Monthly Cost Estimate (based on 10,000 events/month, 100,000 registrations)
+For detailed information about cost breakdown and scalability strategies, please refer to the [Cost and Scalability Report PDF](Event_Ticket_System_Cost_and_Scalability_Report.pdf).
 
-#### Compute (AWS Lambda)
-
-| Function | Invocations/month | Duration (ms) | Memory (MB) | Cost |
-|----------|------------------|---------------|-------------|------|
-| create_event_fn | 10,000 | 500 | 512 | $0.84 |
-| list_events_fn | 150,000 | 300 | 512 | $7.56 |
-| event_stats | 200,000 | 400 | 512 | $13.44 |
-| register_fn | 100,000 | 2000 | 1024 | $33.60 |
-| pay | 100,000 | 300 | 512 | $5.04 |
-| scan | 50,000 | 200 | 256 | $1.68 |
-| **Total Lambda** | | | | **$62.16** |
-
-#### Database (DynamoDB)
-
-| Component | Usage | Cost |
-|-----------|-------|------|
-| On-Demand Reads (10M reads) | 10,000,000 | $2.50 |
-| On-Demand Writes (500K writes) | 500,000 | $6.25 |
-| Storage (10 GB) | 10 GB | $2.50 |
-| **Total DynamoDB** | | **$11.25** |
-
-#### Storage (S3)
-
-| Component | Usage | Cost |
-|-----------|-------|------|
-| Standard Storage (100 GB) | 100 GB | $2.30 |
-| PUT Requests (100K) | 100,000 | $0.50 |
-| GET Requests (300K presigned URLs) | 300,000 | $0.12 |
-| **Total S3** | | **$2.92** |
-
-#### CDN (CloudFront)
-
-| Component | Usage | Cost |
-|-----------|-------|------|
-| Data Transfer Out (100 GB) | 100 GB | $8.50 |
-| HTTP Requests (1M) | 1,000,000 | $1.00 |
-| **Total CloudFront** | | **$9.50** |
-
-#### Authentication (Cognito)
-
-| Component | Usage | Cost |
-|-----------|-------|------|
-| Monthly Active Users | 50,000 MAU | $0.00 (free tier) |
-| **Total Cognito** | | **$0.00** |
-
-#### API Gateway
-
-| Component | Usage | Cost |
-|-----------|-------|------|
-| HTTP API Requests (600K) | 600,000 | $0.60 |
-| **Total API Gateway** | | **$0.60** |
-
-#### Payment Processing (Stripe)
-
-| Component | Usage | Cost |
-|-----------|-------|------|
-| Transactions (100K × ₹500) | ₹50,000,000 | 2.9% + ₹2 per transaction |
-| **Total Stripe Fees** | | **~₹1,450,200** (~$17,400) |
-
-### Total Monthly Cost Estimate
-
-| Category | Monthly Cost (USD) |
-|----------|-------------------|
-| AWS Services | $86.43 |
-| Stripe (passes to customer) | $17,400 |
-| **Total Infrastructure** | **$86.43** |
-
-### Cost Optimization Tips
-
-1. **Use DynamoDB On-Demand**: Pay only for actual reads/writes
-2. **Optimize Lambda Memory**: Right-size memory allocation
-3. **S3 Lifecycle Policies**: Move old tickets to Glacier after 90 days
-4. **CloudFront Caching**: Increase TTL for static assets
-5. **Reserved Capacity**: If consistent load, purchase reserved capacity
-6. **API Gateway Caching**: Reduce Lambda invocations for read-heavy endpoints
-
-### Free Tier Benefits (First 12 months)
-
-- Lambda: 1M requests/month, 400,000 GB-seconds compute
-- DynamoDB: 25 GB storage, 25 WCU, 25 RCU
-- S3: 5 GB storage, 20,000 GET, 2,000 PUT
-- CloudFront: 50 GB data transfer out
-- **Estimated Free Tier Savings**: ~$30-40/month
-
-## 📈 Scalability Plan
-
-### Current Capacity
-
-| Component | Current Limit | Bottleneck Point |
-|-----------|--------------|------------------|
-| Lambda Concurrent Executions | 1,000 | Regional soft limit |
-| DynamoDB Throughput | On-Demand (auto-scales) | None |
-| API Gateway | 10,000 RPS | Regional soft limit |
-| S3 | 3,500 PUT, 5,500 GET/s | Per prefix |
-| Cognito | 25,000 MAU (free tier) | Pay above threshold |
-
-### Scaling Strategies
-
-#### Horizontal Scaling (0 - 1M events/year)
-
-**Current Implementation** ✅
-- Serverless auto-scaling
-- No manual intervention required
-- Pay-per-use pricing model
-
-**Supports**:
-- Up to 100,000 concurrent users
-- Millions of API requests per day
-- Unlimited storage growth
-
-#### Performance Optimization (1M - 10M events/year)
-
-**Database Optimizations**:
-1. **Add Caching Layer**
-   - Implement ElastiCache (Redis)
-   - Cache frequently accessed events
-   - Cache event statistics
-   - TTL: 30-60 seconds
-
-2. **DynamoDB Enhancements**
-   - Enable DynamoDB Auto Scaling
-   - Use DynamoDB DAX for read-heavy workloads
-   - Implement conditional writes to prevent race conditions
-
-**Lambda Optimizations**:
-1. **Provisioned Concurrency**
-   - Configure for frequently-used functions
-   - Eliminates cold starts
-   - Predictable latency
-
-2. **Function Optimization**
-   - Increase memory to 1024 MB for register_fn
-   - Use Lambda Layers for shared dependencies
-   - Implement connection pooling
-
-**API Gateway Optimizations**:
-1. **Enable Caching**
-   - Cache GET /events for 60 seconds
-   - Cache event stats for 30 seconds
-   - Reduce Lambda invocations by 70%
-
-2. **Request Throttling**
-   - Implement rate limiting per user
-   - Protect against DDoS attacks
-
-#### Global Expansion (10M+ events/year)
-
-**Multi-Region Deployment**:
-
-1. **Primary Region**: us-east-1 (N. Virginia)
-2. **Secondary Region**: eu-west-1 (Ireland)
-3. **Tertiary Region**: ap-south-1 (Mumbai)
-
-**Architecture Changes**:
-
-1. **DynamoDB Global Tables**
-   - Multi-region replication
-   - Local read/write in each region
-   - Automatic conflict resolution
-
-2. **Route 53 Geo-Routing**
-   - Route users to nearest region
-   - Latency-based routing
-   - Health checks and failover
-
-3. **S3 Cross-Region Replication**
-   - Replicate tickets to multiple regions
-   - Lower latency for downloads
-   - Disaster recovery
-
-4. **CloudFront Distribution**
-   - Already global by default
-   - Configure custom origins per region
-   - Optimize cache behaviors
-
-**Estimated Costs at Scale**:
-
-| Scale | Monthly Events | Infrastructure Cost | Notes |
-|-------|----------------|--------------------|----|
-| Small | 10,000 | $86 | Current |
-| Medium | 100,000 | $520 | Add caching |
-| Large | 1,000,000 | $3,800 | Multi-region |
-| Enterprise | 10,000,000 | $28,000 | Full optimization |
-
-### Monitoring & Alerting
-
-1. **CloudWatch Metrics**
-   - Lambda errors and duration
-   - DynamoDB throttling
-   - API Gateway 4xx/5xx errors
-
-2. **CloudWatch Alarms**
-   - Lambda error rate > 1%
-   - DynamoDB consumed capacity > 80%
-   - S3 4xx errors > 5%
-
-3. **X-Ray Tracing**
-   - End-to-end request tracing
-   - Identify bottlenecks
-   - Optimize critical paths
-
-4. **Dashboard**
-   - Custom CloudWatch dashboard
-   - Key metrics visualization
-   - Real-time monitoring
-
-### Disaster Recovery
-
-**RPO (Recovery Point Objective)**: < 5 minutes
-**RTO (Recovery Time Objective)**: < 15 minutes
-
-**Backup Strategy**:
-1. DynamoDB Point-in-Time Recovery enabled
-2. S3 versioning enabled
-3. Daily snapshots to separate account
-4. Cross-region replication for critical data
-
-**Failover Plan**:
-1. Health checks on primary region
-2. Automatic Route 53 failover
-3. Manual promotion of secondary region if needed
+The report includes:
+- Monthly cost estimates for AWS services
+- Cost optimization strategies
+- Scaling strategies for different load levels
+- Multi-region deployment architecture
+- Monitoring and disaster recovery plans
 
 ## 💻 Local Development
 
@@ -1080,14 +834,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Repository**: [github.com/Patil-Nitish/event-ticket-system-](https://github.com/Patil-Nitish/event-ticket-system-)
 - **Issues**: [GitHub Issues](https://github.com/Patil-Nitish/event-ticket-system-/issues)
 - **Author**: Nitish Patil
-
-## 🙏 Acknowledgments
-
-- AWS for serverless infrastructure
-- Stripe for payment processing
-- ReportLab for PDF generation
-- html5-qrcode library for QR scanning
-
----
-
-**Built with ❤️ using AWS Serverless Technologies**
