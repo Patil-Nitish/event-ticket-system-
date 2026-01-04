@@ -14,8 +14,6 @@ A comprehensive, serverless event management platform built on AWS that enables 
 - [Deployment](#deployment)
 - [Cost Analysis & Scalability Plan](#cost-analysis--scalability-plan)
 - [Local Development](#local-development)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## 🎯 Overview
@@ -599,7 +597,7 @@ Set environment variables for each Lambda:
 
 ## 📊 Cost Analysis & Scalability Plan
 
-For detailed information about cost breakdown and scalability strategies, please refer to the [Cost and Scalability Report PDF](Event_Ticket_System_Cost_and_Scalability_Report.pdf).
+For detailed information about cost breakdown and scalability strategies, please refer to the [Cost and Scalability Report PDF](Cost_Analysis_and_Scaling_Breakdown.pdf).
 
 The report includes:
 - Monthly cost estimates for AWS services
@@ -703,135 +701,10 @@ print(result)
 3. **Test Payment Flow**
    Use Stripe test card: `4242 4242 4242 4242`
 
-## 🐛 Troubleshooting
 
-### Common Issues
-
-#### 1. "Event is full" Error
-
-**Cause**: Race condition during high concurrent registrations
-
-**Solution**:
-- Implement DynamoDB conditional writes
-- Add optimistic locking with version numbers
-- Use DynamoDB transactions for atomic operations
-
-#### 2. CORS Errors
-
-**Cause**: Missing CORS headers in API Gateway
-
-**Solution**:
-```javascript
-// Add to all Lambda responses
-headers: {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type,Authorization",
-  "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
-}
-```
-
-#### 3. "Payment required before registration"
-
-**Cause**: localStorage cleared or different browser
-
-**Solution**:
-- Implement server-side payment verification
-- Store payment session ID in DynamoDB
-- Query Stripe API to verify payment status
-
-#### 4. QR Scanner Not Working
-
-**Cause**: Camera permissions denied or HTTPS required
-
-**Solution**:
-- Request camera permissions explicitly
-- Ensure site is served over HTTPS
-- Provide manual input fallback
-
-#### 5. Ticket PDF Not Generating
-
-**Cause**: Missing ReportLab fonts or PIL issues
-
-**Solution**:
-```bash
-pip install reportlab pillow --force-reinstall
-```
-
-#### 6. Lambda Timeout
-
-**Cause**: PDF generation taking too long
-
-**Solution**:
-- Increase Lambda timeout to 30 seconds
-- Increase memory to 1024 MB
-- Optimize PDF generation code
-
-### Debugging Tips
-
-1. **Enable CloudWatch Logs**
-   ```python
-   import logging
-   logger = logging.getLogger()
-   logger.setLevel(logging.INFO)
-   ```
-
-2. **Add Trace Logging**
-   ```python
-   print(f"DEBUG: Event data: {json.dumps(event)}")
-   ```
-
-3. **Test DynamoDB Access**
-   ```python
-   import boto3
-   dynamodb = boto3.resource('dynamodb')
-   table = dynamodb.Table('EventApp')
-   print(table.table_status)
-   ```
-
-4. **Check IAM Permissions**
-   Ensure Lambda execution role has:
-   - DynamoDB: PutItem, GetItem, Query, UpdateItem
-   - S3: PutObject, GetObject
-   - Cognito: AdminAddUserToGroup
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these guidelines:
-
-### Development Workflow
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes
-4. Test thoroughly
-5. Commit: `git commit -m 'Add amazing feature'`
-6. Push: `git push origin feature/amazing-feature`
-7. Open a Pull Request
-
-### Code Style
-
-- **Python**: Follow PEP 8
-- **JavaScript**: Use ES6+ features, 2-space indentation
-- **HTML/CSS**: Maintain existing formatting
-
-### Testing
-
-- Add unit tests for new functions
-- Test all API endpoints
-- Verify frontend changes in multiple browsers
-
-### Documentation
-
-- Update README for new features
-- Add inline comments for complex logic
-- Update API documentation
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📞 Contact & Support
 
-- **Repository**: [github.com/Patil-Nitish/event-ticket-system-](https://github.com/Patil-Nitish/event-ticket-system-)
-- **Issues**: [GitHub Issues](https://github.com/Patil-Nitish/event-ticket-system-/issues)
-- **Author**: Nitish Patil
