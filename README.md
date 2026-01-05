@@ -192,10 +192,6 @@ The system uses a **single-table design** with the following access patterns:
 
 ## 📡 API Documentation
 
-### API Flow Diagram
-<img width="3308" height="1055" alt="API" src="https://github.com/user-attachments/assets/df120e30-3c17-41b5-846b-ebedd12ce381" />
-
-
 ### Base URL
 ```
 https://<api-gateway-id>.execute-api.<region>.amazonaws.com/prod
