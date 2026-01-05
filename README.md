@@ -50,7 +50,7 @@ The Event Ticket System is a fully serverless application designed to streamline
 ### System Features
 
 - 🔐 **Cognito Authentication**: Secure user authentication and authorization
-- 🚀 **HTTP API Gateway**: RESTful endpoints with JWT authorization
+- 🚀 **AWS API Gateway**: HTTP API with JWT authorization
 - 💾 **DynamoDB**: NoSQL database with efficient single-table design
 - 📦 **S3 Storage**: Secure ticket PDF storage with automatic cleanup
 - 🎨 **Modern UI**: Clean, responsive interface with gradient designs
