@@ -4,17 +4,17 @@ A comprehensive, serverless event management platform built on AWS that enables 
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Architecture](#architecture)
-- [Database Schema](#database-schema)
-- [API Documentation](#api-documentation)
-- [Authentication & Authorization](#authentication--authorization)
-- [Deployment](#deployment)
-- [Cost Analysis & Scalability Plan](#cost-analysis--scalability-plan)
-- [Local Development](#local-development)
-- [License](#license)
+- [Overview](#-overview)
+- [Features](#-features)
+- [Technology Stack](#️-technology-stack)
+- [Architecture](#️-architecture)
+- [Database Schema](#️-database-schema)
+- [API Documentation](#-api-documentation)
+- [Authentication & Authorization](#-authentication--authorization)
+- [Deployment](#-deployment)
+- [Cost Analysis & Scalability Plan](#-cost-analysis--scalability-plan)
+- [Local Development](#-local-development)
+- [License](#-license)
 
 ## 🎯 Overview
 
@@ -50,7 +50,7 @@ The Event Ticket System is a fully serverless application designed to streamline
 ### System Features
 
 - 🔐 **Cognito Authentication**: Secure user authentication and authorization
-- 🚀 **API Gateway**: RESTful API with JWT authorization
+- 🚀 **HTTP API Gateway**: RESTful endpoints with JWT authorization
 - 💾 **DynamoDB**: NoSQL database with efficient single-table design
 - 📦 **S3 Storage**: Secure ticket PDF storage with automatic cleanup
 - 🎨 **Modern UI**: Clean, responsive interface with gradient designs
@@ -67,7 +67,7 @@ The Event Ticket System is a fully serverless application designed to streamline
 - **AWS Lambda**: Serverless compute for all backend functions
   - Python 3.x for most Lambda functions
   - Node.js (ESM) for payment processing
-- **AWS API Gateway**: RESTful API with HTTP API and JWT authorizers
+- **AWS API Gateway**: HTTP API with JWT authorizers
 - **Amazon DynamoDB**: NoSQL database with single-table design
 - **Amazon S3**: Object storage for ticket PDFs
 - **Amazon Cognito**: User authentication and authorization
